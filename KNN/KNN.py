@@ -12,6 +12,8 @@ import keras
 from keras import backend as K
 from keras.datasets import cifar10
 from keras.models import Model
+from keras.utils import to_categorical
+
 
 
 def encode(img_list: np.ndarray, encoder_layer) -> np.ndarray:
@@ -71,9 +73,11 @@ if __name__ == '__main__':
     encoder_layer = Model(inputs=model.input,
                           outputs=model.get_layer(layer_name).output)
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    y_train_one_hot = to_categorical(y_train)
+    y_test_one_hot = to_categorical(y_test)
     x_train = encode(x_train, encoder_layer)
     x_test = encode(x_test, encoder_layer)
-    KNN(x_train, y_train, x_test, y_test)
+    KNN(x_train, y_train_one_hot, x_test, y_test_one_hot)
     # SVM(train_data_x, train_data_y, test_data_x, test_data_y)
     # dec_tree(train_data_x, train_data_y, test_data_x, test_data_y)
     gc.collect()
