@@ -3,10 +3,13 @@ from keras import Model
 from matplotlib import pyplot as plt
 from keras.datasets import cifar10
 from keras.utils import plot_model
-import numpy as np
 
 
 def plot(model):
+    """
+    Saves png graph of model
+    :param model:
+    """
     plot_model(model,
                to_file="/home/david/Desktop/Year3Sem2/Machine Learning/Project/model.png",
                show_shapes=True,
@@ -18,7 +21,8 @@ def plot(model):
 
 def restore_model():
     """
-    :return:
+    Restores the model
+    :return: the model
     """
     path_to_model_save = "/home/david/Desktop/Year3Sem2/Machine Learning/Project/cnn_detector/cifar_model/my_model"
     model = keras.models.load_model(path_to_model_save)
