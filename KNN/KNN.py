@@ -15,18 +15,27 @@ from keras.models import Model
 from keras.utils import to_categorical
 
 
-
 def encode(img_list: np.ndarray, encoder_layer) -> np.ndarray:
-    img_list_out = []
-    for img in img_list:
-        img_shape = np.ndarray(shape=[1, 32, 32, 3])
-        img_shape[0] = img
-        img = encoder_layer([img_shape])[0]
-        img_list_out.append(img)
-    return img_list_out
+    """
+    :param img_list:
+    :param encoder_layer:
+    :return:
+    """
+    # img_list_out = []
+    # for img in img_list:
+    #     img_shape = np.ndarray(shape=[1, 32, 32, 3])
+    #     img_shape[0] = img
+    #     img = encoder_layer([img_shape])[0]
+    #     img_list_out.append(img)
+    img = encoder_layer([img_list])[0]
+
+    return img
 
 
 def restore_model():
+    """
+    :return:
+    """
     path_to_model_save = "/home/david/Desktop/Year3Sem2/Machine Learning/Project/cnn_detector/cifar_model/my_model"
     model = keras.models.load_model(path_to_model_save)
     return model
@@ -43,7 +52,7 @@ def KNN(train_data_x, train_data_y, test_data_x, test_data_y):
     classifier = KNeighborsClassifier(n_neighbors=5)
     classifier.fit(train_data_x, train_data_y)
     y_pred = classifier.predict(test_data_x)
-    print("Error: ", np.mean(y_pred != test_data_y))
+    print("KNN error: ", np.mean(y_pred != test_data_y))
 
 
 def SVM(train_data_x, train_data_y, test_data_x, test_data_y):
@@ -57,10 +66,18 @@ def SVM(train_data_x, train_data_y, test_data_x, test_data_y):
     clf = svm.SVC(decision_function_shape='ovo')
     clf.fit(train_data_x, train_data_y)
     pred_y = clf.predict(test_data_x)
-    print("Error: ", np.mean(pred_y != test_data_y))
+    print("SVM error: ", np.mean(pred_y != test_data_y))
 
 
 def dec_tree(train_data_x, train_data_y, test_data_x, test_data_y):
+    """
+
+    :param train_data_x:
+    :param train_data_y:
+    :param test_data_x:
+    :param test_data_y:
+    :return:
+    """
     clf = tree.DecisionTreeClassifier()
     clf.fit(train_data_x, train_data_y)
     pred_y = clf.predict(test_data_x)
@@ -73,11 +90,18 @@ if __name__ == '__main__':
     encoder_layer = Model(inputs=model.input,
                           outputs=model.get_layer(layer_name).output)
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    x_train = x_train / 255
+    x_test = x_test / 255
     y_train_one_hot = to_categorical(y_train)
     y_test_one_hot = to_categorical(y_test)
+    print(y_train_one_hot.shape)
+    print("Started encoding train")
     x_train = encode(x_train, encoder_layer)
+    print("Started encoding test")
     x_test = encode(x_test, encoder_layer)
+    print("Started KNN")
     KNN(x_train, y_train_one_hot, x_test, y_test_one_hot)
-    # SVM(train_data_x, train_data_y, test_data_x, test_data_y)
-    # dec_tree(train_data_x, train_data_y, test_data_x, test_data_y)
+    # SVM(x_train, y_train, x_test, y_test)
+    print("Started decision tree")
+    dec_tree(x_train, y_train_one_hot, x_test, y_test_one_hot)
     gc.collect()

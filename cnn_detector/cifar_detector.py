@@ -13,21 +13,10 @@ http://www.marekrei.com/blog/transforming-images-to-feature-vectors/
 
 https://www.youtube.com/watch?v=iGWbqhdjf2s
 """
-import os
-import pickle
-from pprint import pprint
-
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-# %matplotlib inline
-from skimage import io
-import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
-from tensorflow.keras import layers
-from keras.utils import to_categorical
-
+from keras.utils import to_categorical, plot_model
 from keras.datasets import cifar10
 
 plt.style.use('fivethirtyeight')
@@ -39,7 +28,6 @@ def load_label_names():
 
 def train():
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-
     y_train_one_hot = to_categorical(y_train)
     y_test_one_hot = to_categorical(y_test)
 
@@ -52,32 +40,43 @@ def train():
     model = Sequential()
 
     # first layer
-    model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(32, 32, 3)))
+    model.add(Conv2D(16, (5, 5), activation='relu', input_shape=(32, 32, 3), padding="SAME"))
+    model.add(Conv2D(32, (5, 5), activation='relu', padding="SAME"))
     # pooling layer
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     # second layer
-    model.add(Conv2D(32, (5, 5), activation='relu'))
+    model.add(Conv2D(64, (5, 5), activation='relu', padding="SAME"))
+    model.add(Conv2D(128, (5, 5), activation='relu', padding="SAME"))
     # second pooling layer
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    # third conv layer
+    model.add(Conv2D(256, (5, 5), activation='relu', padding="SAME"))
+    # third pooling layer
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     # flat layer
     model.add(Flatten())
 
-    # add a layer with 1000 neurns
+    # add a layer with 1000 neurons
     model.add(Dense(1000, activation='relu'))
 
     # dropout layer
     model.add(Dropout(0.5))
 
-    # add a layer with 500 neurns
+    # add a layer with 500 neurons
     model.add(Dense(500, activation='relu'))
 
     # dropout layer
     model.add(Dropout(0.5))
 
-    # add a layer with 250 neurns
+    # add a layer with 250 neurons
     model.add(Dense(250, activation='relu'))
+    model.add(Dropout(0.5))
+
+    # add a dense layer with 500 neurons
+    model.add(Dense(500, activation='relu'))
 
     # add a layer with 10 neurns
     model.add(Dense(10, activation='softmax'))
@@ -85,8 +84,7 @@ def train():
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
-
-    hist = model.fit(x_train, y_train_one_hot, batch_size=256, epochs=10, validation_split=0.2)
+    hist = model.fit(x_train, y_train_one_hot, batch_size=256, epochs=20, validation_split=0.2)
 
     save_path = "/home/david/Desktop/Year3Sem2/Machine Learning/Project/cnn_detector/cifar_model/my_model"
     model.save(filepath=save_path)
@@ -106,8 +104,9 @@ def train():
     plt.title('Model Los')
     plt.xlabel('Loss')
     plt.ylabel('Epoch')
-    plt.legend(['Train' , 'Val'], loc='upper right')
+    plt.legend(['Train', 'Val'], loc='upper right')
     plt.show()
+
 
 if __name__ == '__main__':
     train()
