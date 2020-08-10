@@ -1,4 +1,3 @@
-from sklearn.manifold import TSNE
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 import gc
@@ -7,13 +6,10 @@ from sklearn import tree
 import keras
 from keras.datasets import cifar10
 from keras.models import Model
-from keras.utils import to_categorical
 from sklearn.naive_bayes import MultinomialNB
 import time
 import pickle
 from sklearn.preprocessing import MultiLabelBinarizer
-import matplotlib.pyplot as plt
-from PIL import Image
 
 
 def encode(img_list: np.ndarray, encoder_layer) -> np.ndarray:
