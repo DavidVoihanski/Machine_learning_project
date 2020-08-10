@@ -1,18 +1,3 @@
-"""
-python code:
-https://www.thepythoncode.com/article/use-transfer-learning-for-image-flower-classification-keras-python
-
-dog and cat classification:
-https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-to-classify-photos-of-dogs-and-cats/
-
-Analytics vidhya - img to vector
-https://www.analyticsvidhya.com/blog/2019/08/3-techniques-extract-features-from-image-data-machine-learning-python/
-
-
-http://www.marekrei.com/blog/transforming-images-to-feature-vectors/
-
-https://www.youtube.com/watch?v=iGWbqhdjf2s
-"""
 import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
@@ -22,21 +7,39 @@ from keras.datasets import cifar10
 plt.style.use('fivethirtyeight')
 
 
-def load_label_names():
+def load_label_names() -> list:
+    """
+    :return: list of cifar10 labels
+    """
     return ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
 
-def train():
-    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-    y_train_one_hot = to_categorical(y_train)
-    y_test_one_hot = to_categorical(y_test)
+def plot_results(hist):
+    """
+    plots the accuracy and loss of the model
+    :param hist: Model hist
+    """
+    plt.plot(hist.history['accuracy'])
+    plt.plot(hist.history['val_accuracy'])
+    plt.title('Model Accuracy')
+    plt.xlabel('Accuracy')
+    plt.ylabel('Epoch')
+    plt.legend(['Train', 'Val'], loc='upper right')
+    plt.show()
 
-    # Normalize
-    x_train = x_train / 255
-    x_test = x_test / 255
+    plt.plot(hist.history['loss'])
+    plt.plot(hist.history['val_loss'])
+    plt.title('Model Los')
+    plt.xlabel('Loss')
+    plt.ylabel('Epoch')
+    plt.legend(['Train', 'Val'], loc='upper right')
+    plt.show()
 
-    # create model
 
+def build_model():
+    """
+    :return: The keras model defined
+    """
     model = Sequential()
 
     # first layer
@@ -84,6 +87,22 @@ def train():
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
+    return model
+
+
+def trains_and_test():
+    """
+    Trains the model model, tests it, saves it and plots the results
+    """
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    y_train_one_hot = to_categorical(y_train)
+    y_test_one_hot = to_categorical(y_test)
+
+    # Normalize
+    x_train = x_train / 255
+    x_test = x_test / 255
+
+    model = build_model()
     hist = model.fit(x_train, y_train_one_hot, batch_size=256, epochs=20, validation_split=0.2)
 
     save_path = "/home/david/Desktop/Year3Sem2/Machine Learning/Project/cnn_detector/cifar_model/my_model"
@@ -91,22 +110,8 @@ def train():
 
     model.evaluate(x_test, y_test_one_hot)[1]
 
-    plt.plot(hist.history['accuracy'])
-    plt.plot(hist.history['val_accuracy'])
-    plt.title('Model Accuracy')
-    plt.xlabel('Accuracy')
-    plt.ylabel('Epoch')
-    plt.legend(['Train', 'Val'], loc='upper right')
-    plt.show()
-
-    plt.plot(hist.history['loss'])
-    plt.plot(hist.history['val_loss'])
-    plt.title('Model Los')
-    plt.xlabel('Loss')
-    plt.ylabel('Epoch')
-    plt.legend(['Train', 'Val'], loc='upper right')
-    plt.show()
+    plot_results(hist)
 
 
 if __name__ == '__main__':
-    train()
+    trains_and_test()
